@@ -2,6 +2,7 @@ import logging
 from typing import List
 import requests
 import math
+from datetime import date
 
 from ds_2019_03_hw01_part1.parsers.imdb_parser import ImdbParser
 from ds_2019_03_hw01_part1.storages.storage import Storage
@@ -33,23 +34,36 @@ def fetch(url):
 class Scrapper(object):
     parser_class = ImdbParser
     initial_url = (
-        'https://www.imdb.com/search/title?title={title}&count={count}&start={start}'
+        'https://www.imdb.com/search/title?release_date={release_date_from},{release_date_to}&count={count}&start={start}'
     )
     per_page = 250
 
     def __init__(self, skip_objects: List = None):
         self.skip_objects = skip_objects or []
 
-    def scrap_process(self, storage: Storage, title: str = 'example', limit: int = 10):
+    def scrap_process(
+            self,
+            storage: Storage,
+            release_date_from: date = None,
+            release_date_to: date = None,
+            title: str = 'example',
+            limit: int = 10
+        ):
         parser = self.parser_class()
 
+        release_date_from = release_date_from or date.today()
+        release_date_to = release_date_to or date.today()
         per_page = min(self.per_page, limit)
         page_count = math.ceil(limit / self.per_page)
         rest = limit
 
-        for idx in range(page_count):
+        for page_no in range(page_count):
             url = self.initial_url.format(
-                title=title, start=idx * self.per_page, count=per_page
+                release_date_from=release_date_from.strftime('%Y-%m-%d'),
+                release_date_to=release_date_to.strftime('%Y-%m-%d'),
+                title=title,
+                start=page_no * self.per_page,
+                count=per_page
             )
 
             logging.info('Start scrapping', extra={'url': url})

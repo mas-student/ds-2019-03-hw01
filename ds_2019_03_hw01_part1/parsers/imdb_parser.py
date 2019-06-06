@@ -15,5 +15,5 @@ class ImdbParser(HtmlParser):
             {'type': 'int'},
         ],
         'genre': [('span', 'class', 'genre'), {'strip': ' \n'}],
-        'runtime': [('span', 'class', 'runtime'), {'strip': ' \n'}],
+        'runtime': [('span', 'class', 'runtime'), {'strip': ' \n'}, {'type': 'int'}],
     }
